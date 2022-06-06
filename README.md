@@ -4,6 +4,13 @@
   - Master Node: 1
   - Worker Nodes: 3
 
+
+
+![kubernetes](https://user-images.githubusercontent.com/1809177/172183297-9c049f19-308b-40df-a860-8d29277f28a0.png)
+
+
+
+
 ## [v1.0] - 05-06-2022 (dd-mm-yyyy)
 
 ### Added

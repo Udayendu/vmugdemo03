@@ -1,0 +1,21 @@
+[containerlab]
+xxxxxxxxx_yyy.yyy.yyy.yyy Mgmt_network_ipv4='yyy.yyy.yyy.yyy' vsphere_vm_hostname='xxxxxxxxx'
+
+[master]
+yyy.yyy.yyy.yyy
+
+[workers]
+yyy.yyy.yyy.yyy
+
+# Node Groups
+[nodes:children]
+master
+workers
+
+[nodes:vars]
+ansible_connection=ssh
+ansible_user=root
+ansible_python_interpreter=/usr/bin/python2.7
+ansible_password=Avaya123$
+ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
+

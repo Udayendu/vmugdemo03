@@ -1,0 +1,63 @@
+---
+- name: Set timezone
+  timezone:
+    name: '{{ timezone }}'
+
+- name: Copy the chronyd file
+  copy:
+    src: "{{ role_path }}/files/chronyd"
+    dest: /etc/sysconfig/chronyd
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Copy the chrony.conf template file
+  template:  src="{{ role_path }}/files/chrony.conf.j2"  dest=/etc/chrony.conf
+
+- name: Set the NTP to true
+  command: "{{ item }}"
+  with_items:
+    - timedatectl set-ntp true
+
+- name: Start and enable chronyd
+  systemd:
+    name: chronyd
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+
+- name: Stop and disable the firewalld
+  systemd:
+    name: firewalld
+    enabled: no
+    state: stopped
+    masked: yes  
+
+- name: Disable SELinux
+  selinux:
+    state: disabled
+
+- name: Install supporting packages
+  package:
+    name: '{{ item }}'
+    state: latest    
+  with_items:
+    - telnet
+    - elinks
+
+- name: Remove swapfile from /etc/fstab
+  mount:
+    name: "{{ item }}"
+    fstype: swap
+    state: absent
+  with_items:
+    - swap
+    - none
+
+- name: Disable swap
+  command: swapoff -a
+
+- name: Reboot the system post change
+  reboot:
+    reboot_timeout: 300
+    msg: "Reboot initiated by Ansible"

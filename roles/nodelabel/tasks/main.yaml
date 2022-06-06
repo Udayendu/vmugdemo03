@@ -1,0 +1,25 @@
+---
+- name: Label the Worker nodes
+  shell: |
+    kubectl label  nodes k8s-worker0{{ item }} kubernetes.io/role=worker{{ item }}
+  with_items:
+    - 1
+    - 2
+    - 3
+
+- name: Configure the bash autocomplete on kubernetes master
+  shell: |
+    echo "source <(kubectl completion bash)" >> ~/.bashrc  
+
+- name: Wait for 30 secondars before collecting node status
+  wait_for:
+    timeout: 30
+  delegate_to: localhost
+
+- name: Get the deployed nodes
+  shell: |
+    kubectl get nodes -o wide
+  register: result
+
+- debug:
+    msg: "{{ result.stdout_lines }}"

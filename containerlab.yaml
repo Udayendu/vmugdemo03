@@ -1,0 +1,103 @@
+# VM Deploy, Guest OS customizationa nd Delete roles
+- hosts: containerlab
+  connection: local
+  tags: deploy
+  gather_facts: no
+
+  tasks:
+    - name: Deploy the kubernetes servers
+      include_role:
+        name: deploy
+
+
+- hosts: nodes
+  connection: ssh
+  tags: oscustom
+  gather_facts: no
+
+  tasks:
+    - ping:
+
+    - name: Customize the kubernetes servers
+      include_role:
+        name: gocustom
+
+- hosts: containerlab
+  connection: local
+  tags: delete
+  gather_facts: no
+
+  tasks:
+    - name: Delete the kubernetes server
+      include_role:
+        name: delete
+
+
+# VM snapshot managment roles
+- hosts: containerlab
+  connection: local
+  tags: vmsnapshot
+  gather_facts: no
+
+  tasks:
+    - name: Take the snapshot of kubernetes servers
+      include_role:
+        name: vmsnapshot
+
+- hosts: containerlab
+  connection: local
+  tags: vmsnapshotrevert
+  gather_facts: no
+
+  tasks:
+    - name: Revert the snapshot of kubernetes servers
+      include_role:
+        name: vmsnapshotrevert
+
+- hosts: containerlab
+  connection: local
+  tags: vmsnapshotremove
+  gather_facts: no
+
+  tasks:
+    - name: Remove the snapshot of kubernetes servers
+      include_role:
+        name: vmsnapshotremove
+
+
+# Kubernetes Cluster Configuration foles
+- hosts: master
+  connection: ssh
+  tags: mastersetup
+  gather_facts: no
+
+  tasks:
+    - ping:
+
+    - name: Setup the kubernetes master node
+      include_role:
+        name: mastersetup
+
+- hosts: workers
+  connection: ssh
+  tags: nodesetup
+  gather_facts: no
+
+  tasks:
+    - ping:
+
+    - name: Setup the the kubernetes worker nodes
+      include_role:
+        name: nodesetup          
+
+- hosts: master
+  connection: ssh
+  tags: nodelabel
+  gather_facts: no
+
+  tasks:
+    - ping:
+
+    - name: Label the kubernetes worker nodes
+      include_role:
+        name: nodelabel

@@ -1,0 +1,55 @@
+---
+- name: Load br_netfilter module
+  command: modprobe br_netfilter
+
+- name: Add the br_netfilter module to work across reboot
+  shell: |
+    echo br_netfilter > /etc/modules-load.d/br_netfilter.conf  
+
+- name: Load the bridge-nf-call-iptables module
+  sysctl:
+    name: net.bridge.bridge-nf-call-iptables  
+    value: '1'
+    sysctl_set: yes  
+    state: present
+    reload: yes  
+
+- name: Configure the yum repo for kubernetes
+  copy:
+    src: "{{ role_path }}/files/kubernetes.repo"
+    dest: /etc/yum.repos.d/kubernetes.repo
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Install Kubernetes binaries
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - kubelet-1.23.7
+    - kubeadm-1.23.7
+    - kubectl-1.23.7
+    - docker  
+
+- name: Start and enable the docker service
+  systemd:
+    name: docker
+    state: restarted
+    enabled: yes  
+
+- name: Enable the kubelet service
+  systemd:
+    name: kubelet
+    enabled: yes  
+
+- name: Copy the node join command file to Worker nodes
+  copy:
+    src: /tmp/node_join_command
+    dest: /tmp/node_join_command
+    mode: 0755
+
+- name: Join the Worker nodes to the cluster.
+  command: sh /tmp/node_join_command
+  register: result
+
